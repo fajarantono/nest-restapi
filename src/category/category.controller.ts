@@ -1,30 +1,25 @@
 import {
-  BadRequestException,
   Body,
   Controller,
-  DefaultValuePipe,
   Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Patch,
   Post,
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { AuthGuard } from '@/auth/auth.guard';
-import { ApiResponse } from '@/utils/api-response';
+import { AuthGuard } from '@nestjs/passport';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
-import { CategoryEntity } from './entities/category.entity';
+import { Category } from './entities/category.entity';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { NullableType } from '@/utils/types/nullable.type';
 import { UpdateCategoryDto } from './dto/update-category.dto';
-import { calculatePagination } from '@/utils/calculate-pagination';
 
-@UseGuards(AuthGuard) // Make AuthGuard in here
+@UseGuards(AuthGuard('jwt')) // Make AuthGuard in here
 @Controller({
   path: 'categories',
   version: '1',
@@ -32,13 +27,11 @@ import { calculatePagination } from '@/utils/calculate-pagination';
 @ApiTags('Categories')
 @ApiBearerAuth()
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) { }
+  constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  async create(
-    @Body() createCategoryDto: CreateCategoryDto,
-  ): Promise<CategoryEntity> {
+  async create(@Body() createCategoryDto: CreateCategoryDto): Promise<Category> {
     return this.categoryService.create(createCategoryDto);
   }
 
@@ -49,7 +42,7 @@ export class CategoryController {
     @Query('limit') limit: number = 10,
     @Query('search') search?: string,
   ): Promise<{
-    data: CategoryEntity[];
+    data: Category[];
     total: number;
     page: number;
     limit: number;
@@ -59,25 +52,20 @@ export class CategoryController {
 
   @Get(':id')
   @HttpCode(HttpStatus.OK)
-  findOne(
-    @Param('id') id: CategoryEntity['id'],
-  ): Promise<NullableType<CategoryEntity>> {
+  findOne(@Param('id') id: Category['id']): Promise<NullableType<Category>> {
     return this.categoryService.findOne({ id });
   }
 
   @Patch(':id')
   @HttpCode(HttpStatus.OK)
-  update(
-    @Param('id') id: CategoryEntity['id'],
-    @Body() updateCategoryDto: UpdateCategoryDto,
-  ): Promise<CategoryEntity> {
+  update(@Param('id') id: Category['id'], @Body() updateCategoryDto: UpdateCategoryDto): Promise<Category> {
     return this.categoryService.update(id, updateCategoryDto);
   }
 
   //SoftDelete
   @Delete(':id')
   @HttpCode(HttpStatus.OK)
-  remove(@Param('id') id: CategoryEntity['id']): Promise<void> {
+  remove(@Param('id') id: Category['id']): Promise<void> {
     return this.categoryService.softDelete(id);
   }
 }

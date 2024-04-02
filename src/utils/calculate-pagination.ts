@@ -1,10 +1,6 @@
 import { IPaginationInfo } from './types/pagination-info.type';
 
-export const calculatePagination = (
-  totalData: number,
-  currentPage: number,
-  limitPerPage: number,
-): IPaginationInfo => {
+export const calculatePagination = (totalData: number, currentPage: number, limitPerPage: number): IPaginationInfo => {
   const totalPages = Math.ceil(totalData / limitPerPage);
   const hasNextPage = currentPage < totalPages;
   const hasPrevPage = currentPage > 1;

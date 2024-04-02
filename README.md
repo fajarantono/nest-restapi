@@ -1,4 +1,4 @@
-# BE HELPCENTER
+# NEST RESTAP
 
 ## Features
 
@@ -22,7 +22,7 @@ The recommended version is the LTS version for every tool and package.
 Clone the project with git.
 
 ```bash
-git clone https://github.com/fajarantono/be-helpcenter.git
+git clone https://github.com/fajarantono/nest-restapi.git
 ```
 
 ### Install Dependencies

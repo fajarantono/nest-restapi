@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
-import { CategoryEntity } from './entities/category.entity';
+import { Category } from './entities/category.entity';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { IPaginationOptions } from '@/utils/types/pagination-options';
 import { EntityCondition } from '@/utils/types/entity-condition.type';
@@ -12,27 +12,21 @@ import { calculatePagination } from '@/utils/calculate-pagination';
 @Injectable()
 export class CategoryService {
   constructor(
-    @InjectRepository(CategoryEntity)
-    private readonly categoryRepository: Repository<CategoryEntity>,
-  ) { }
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+  ) {}
 
-  async create(createCategoryDto: CreateCategoryDto): Promise<CategoryEntity> {
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     try {
       const category = this.categoryRepository.create(createCategoryDto);
       await this.categoryRepository.save(category);
 
-      return ApiResponse.create(
-        { code: HttpStatus.CREATED, message: 'Category created successfully' },
-        null,
-      );
+      return ApiResponse.create({ code: HttpStatus.CREATED, message: 'Category created successfully' }, null);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
@@ -40,7 +34,7 @@ export class CategoryService {
     paginationOptions: IPaginationOptions,
     search?: string,
   ): Promise<{
-    data: CategoryEntity[];
+    data: Category[];
     total: number;
     page: number;
     limit: number;
@@ -52,10 +46,7 @@ export class CategoryService {
         .createQueryBuilder('category')
         .leftJoinAndSelect('category.icon', 'icon')
         .where('category.deleted_at IS NULL')
-        .andWhere(
-          search ? 'category.name LIKE :search' : '1=1',
-          search ? { search: `%${search}%` } : {},
-        )
+        .andWhere(search ? 'category.name LIKE :search' : '1=1', search ? { search: `%${search}%` } : {})
         .select([
           'category.id',
           'category.name',
@@ -77,16 +68,11 @@ export class CategoryService {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async findOne(
-    fields: EntityCondition<CategoryEntity>,
-  ): Promise<NullableType<CategoryEntity>> {
+  async findOne(fields: EntityCondition<Category>): Promise<NullableType<Category>> {
     try {
       const queryBuilder = this.categoryRepository
         .createQueryBuilder('category')
@@ -111,17 +97,11 @@ export class CategoryService {
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new HttpException(
-        'Internal server error',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException('Internal server error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
-  async update(
-    id: CategoryEntity['id'],
-    payload: DeepPartial<CategoryEntity>,
-  ): Promise<CategoryEntity> {
+  async update(id: Category['id'], payload: DeepPartial<Category>): Promise<Category> {
     try {
       await this.categoryRepository.save(
         this.categoryRepository.create({
@@ -130,10 +110,7 @@ export class CategoryService {
         }),
       );
 
-      return ApiResponse.create(
-        { code: HttpStatus.OK, message: 'Category updated successfully' },
-        null,
-      );
+      return ApiResponse.create({ code: HttpStatus.OK, message: 'Category updated successfully' }, null);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -148,14 +125,11 @@ export class CategoryService {
     }
   }
 
-  async softDelete(id: CategoryEntity['id']): Promise<void> {
+  async softDelete(id: Category['id']): Promise<void> {
     try {
       await this.categoryRepository.softDelete(id);
 
-      return ApiResponse.create(
-        { code: HttpStatus.OK, message: 'Category deleted successfully' },
-        null,
-      );
+      return ApiResponse.create({ code: HttpStatus.OK, message: 'Category deleted successfully' }, null);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -170,13 +144,10 @@ export class CategoryService {
     }
   }
 
-  async remove(id: CategoryEntity['id']) {
+  async remove(id: Category['id']) {
     try {
       await this.categoryRepository.delete(id);
-      return ApiResponse.create(
-        { code: HttpStatus.OK, message: 'Category deleted successfully' },
-        null,
-      );
+      return ApiResponse.create({ code: HttpStatus.OK, message: 'Category deleted successfully' }, null);
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;

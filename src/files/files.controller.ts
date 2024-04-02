@@ -1,16 +1,7 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Response,
-  UploadedFile,
-  UseGuards,
-  UseInterceptors,
-} from '@nestjs/common';
+import { Controller, Get, Param, Post, Response, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
-import { AuthGuard } from '@/auth/auth.guard';
+import { AuthGuard } from '@nestjs/passport';
 import { FilesService } from './files.services';
 
 @ApiTags('Files')
@@ -22,7 +13,7 @@ export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   @Post('upload')
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -37,15 +28,13 @@ export class FilesController {
     },
   })
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(
-    @UploadedFile() file: Express.Multer.File | Express.MulterS3.File,
-  ) {
+  async uploadFile(@UploadedFile() file: Express.Multer.File | Express.MulterS3.File) {
     return this.filesService.uploadFile(file);
   }
 
   @Get(':path')
   @ApiBearerAuth()
-  @UseGuards(AuthGuard)
+  @UseGuards(AuthGuard('jwt'))
   download(@Param('path') path, @Response() response) {
     return response.sendFile(path, { root: './uploads' });
   }
